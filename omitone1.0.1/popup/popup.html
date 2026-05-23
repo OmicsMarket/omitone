@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>欧米通</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  width: 300px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+  font-size: 13px;
+  background: #fff;
+  color: #111;
+}
+.container { padding: 20px; }
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.header .dot {
+  width: 8px; height: 8px;
+  background: #111;
+  border-radius: 50%;
+}
+.header h1 { font-size: 14px; font-weight: 600; letter-spacing: 0.5px; }
+.header .ver { font-size: 10px; color: #999; margin-left: auto; }
+
+.section { margin-bottom: 20px; }
+.section-title {
+  font-size: 10px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.row:last-child { border-bottom: none; }
+.row label { font-size: 13px; color: #333; }
+
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 8px 0;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  background: transparent;
+  font-size: 12px;
+  color: #111;
+  outline: none;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+input:focus, select:focus { border-bottom-color: #111; }
+input::placeholder { color: #bbb; }
+select { cursor: pointer; -webkit-appearance: none; }
+
+.range-wrap { margin-bottom: 12px; }
+.range-head { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.range-head span { font-size: 11px; color: #999; }
+.range-head .val { font-size: 14px; font-weight: 600; color: #111; }
+input[type="range"] {
+  width: 100%; height: 2px;
+  -webkit-appearance: none;
+  background: #e0e0e0;
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px; height: 14px;
+  background: #111;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.toggle {
+  width: 36px; height: 20px;
+  background: #e0e0e0;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  flex-shrink: 0;
+}
+.toggle.on { background: #111; }
+.toggle::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: transform 0.15s;
+}
+.toggle.on::after { transform: translateX(16px); }
+
+.btn {
+  width: 100%;
+  padding: 10px 0;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+.btn:hover { background: #333; }
+.btn.ghost {
+  background: transparent;
+  color: #999;
+  border: 1px solid #e0e0e0;
+  margin-top: 6px;
+}
+.btn.ghost:hover { color: #111; border-color: #111; }
+
+.toast {
+  text-align: center;
+  font-size: 11px;
+  color: #999;
+  margin-top: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.toast.show { opacity: 1; }
+
+.hidden { display: none; }
+
+/* extension list items */
+.kv { display: flex; gap: 6px; margin-bottom: 10px; }
+.kv .key { font-size: 11px; color: #999; min-width: 50px; }
+.kv .val { font-size: 12px; color: #333; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="header">
+  <div class="dot"></div>
+  <h1>欧米通</h1>
+  <span class="ver">v1.0</span>
+</div>
+
+<div class="section">
+  <div class="section-title">播放</div>
+  <div class="range-wrap">
+    <div class="range-head">
+      <span>倍速</span>
+      <span class="val" id="rateVal">1.5x</span>
+    </div>
+    <input type="range" id="rate" min="0.5" max="3" step="0.1" value="1.0">
+  </div>
+  <div class="row">
+    <label>静音</label>
+    <div class="toggle" id="muted"></div>
+  </div>
+  <div class="row">
+    <label>自动下一节</label>
+    <div class="toggle on" id="autoNext"></div>
+  </div>
+  <div class="row">
+    <label>AI答题</label>
+    <div class="toggle on" id="enableQuiz"></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">大模型</div>
+  <select id="apiType">
+    <option value="openai">OpenAI 兼容</option>
+    <option value="claude">Anthropic Claude</option>
+  </select>
+  <input type="text" id="apiUrl" placeholder="API 地址 (api.minimaxi.com)">
+  <input type="password" id="apiKey" placeholder="API Key">
+  <input type="text" id="model" placeholder="模型 (MiniMax-M2.7)">
+  <input type="text" id="sysPrompt" placeholder="自定义提示词（可选）">
+</div>
+
+<div class="section">
+  <div class="section-title">远程更新</div>
+  <input type="text" id="remoteVersionUrl" placeholder="版本信息 JSON URL（可选）">
+  <input type="text" id="pageScriptUrl" placeholder="远程 page.js URL（可选）">
+  <button class="btn ghost" id="checkUpdate" style="margin-top:6px;">检查更新</button>
+</div>
+
+<button class="btn" id="save">保存设置</button>
+<button class="btn" id="start" style="margin-top:4px;">开始播放</button>
+<button class="btn ghost" id="reset">恢复默认</button>
+<div class="toast" id="toast"></div>
+
+</div>
+<script src="popup.js"></script>
+</body>
+</html>
